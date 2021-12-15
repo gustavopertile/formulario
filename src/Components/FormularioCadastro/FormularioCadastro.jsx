@@ -1,27 +1,57 @@
-import { Typography } from "@material-ui/core";
-import React, { Fragment, useState } from "react";
+import { StepLabel, Stepper, Typography, Step } from "@material-ui/core";
+import React, { Fragment, useEffect, useState } from "react";
 import DadosEntrega from "./DadosEntrega";
 import DadosPessoais from "./DadosPessoais";
 import DadosUsuario from "./DadosUsuario";
 
-function FormularioCadastro({ aoEnviar, validarCPF }) {
-	const [etapaAtual, setEtapaAtual] = useState(1);
+function FormularioCadastro({ aoEnviar }) {
+	const [etapaAtual, setEtapaAtual] = useState(0);
+	const [dadosColetados, setDados] = useState({});
 
-	function formularioAtual(etapa) {
-		switch (etapa) {
-			case 0:
-				return <DadosUsuario />;
-			case 1:
-				return (
-					<DadosPessoais aoEnviar={aoEnviar} validarCPF={validarCPF} />
-				);
-			case 2:
-				return <DadosEntrega />;
-			default:
-				return <Typography>Erro ao selecionar formulário</Typography>;
+	useEffect(() => {
+		// eslint-disable-next-line 
+		if (etapaAtual === formulario.length - 1) {
+			aoEnviar(dadosColetados);
 		}
+	});
+
+	const formulario = [
+		<DadosUsuario aoEnviar={coletarDados} />,
+		<DadosPessoais aoEnviar={coletarDados} />,
+		<DadosEntrega aoEnviar={coletarDados} />,
+		<Typography variant="h5" align="center">
+			Obrigado pelo Cadastro!
+		</Typography>,
+	];
+
+	function coletarDados(dados) {
+		setDados({ ...dadosColetados, ...dados });
+		proximo();
 	}
-	return <Fragment>{formularioAtual(etapaAtual)}</Fragment>;
+
+	function proximo() {
+		setEtapaAtual(etapaAtual + 1);
+	}
+
+	return (
+		<Fragment>
+			<Stepper activeStep={etapaAtual}>
+				<Step>
+					<StepLabel>Login</StepLabel>
+				</Step>
+				<Step>
+					<StepLabel>Pessoal</StepLabel>
+				</Step>
+				<Step>
+					<StepLabel>Entrega</StepLabel>
+				</Step>
+				<Step>
+					<StepLabel>Finalização</StepLabel>
+				</Step>
+			</Stepper>
+			{formulario[etapaAtual]}
+		</Fragment>
+	);
 }
 
 export default FormularioCadastro;
